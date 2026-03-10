@@ -7,10 +7,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
@@ -32,6 +34,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,7 +48,7 @@ import com.grey.ym.reply.data.MailboxType
 fun DetailsScreenPreview() {
     val viewModel: ReplyViewModel = viewModel()
     val uiState = viewModel.uiState.collectAsState().value
-    DetailsScreen(uiState, {})
+    DetailsScreen(uiState, {}, true)
 }
 
 @Composable
@@ -58,14 +61,15 @@ fun DetailsScreen(
     BackHandler { onBackPressed() }
 
     Box(modifier = modifier) {
+        val detailsScreenContentDescription = stringResource(R.string.details_screen)
         LazyColumn(
             contentPadding = WindowInsets.safeDrawing.asPaddingValues(),
             modifier = Modifier
                 .fillMaxSize()
                 .background(color = MaterialTheme.colorScheme.inverseOnSurface)
+                .testTag(detailsScreenContentDescription)
         ) {
             item {
-
                 if (isFullScreen) {
                     DetailsScreenTopBar(
                         modifier = Modifier
@@ -81,10 +85,11 @@ fun DetailsScreen(
                 EmailDetailsCard(
                     email = replyUiState.currentSelectedEmail,
                     mailboxType = replyUiState.currentMailbox,
+                    isFullScreen = isFullScreen,
                     modifier = if (isFullScreen) {
                         Modifier.navigationBarsPadding().padding(horizontal = dimensionResource(R.dimen.detail_card_outer_padding_horizontal))
                     } else {
-                        Modifier.navigationBarsPadding().padding(end = dimensionResource(R.dimen.detail_card_outer_padding_horizontal))
+                        Modifier.padding(end = dimensionResource(R.dimen.detail_card_outer_padding_horizontal))
                     }
                 )
             }
@@ -141,15 +146,15 @@ private fun DetailsScreenTopBar(
 fun EmailDetailsCardPreview() {
     val viewModel: ReplyViewModel = viewModel()
     val uiState = viewModel.uiState.collectAsState().value
-
-    EmailDetailsCard(uiState.currentSelectedEmail, uiState.currentMailbox)
+    EmailDetailsCard(uiState.currentSelectedEmail, uiState.currentMailbox, false)
 }
 
 @Composable
 private fun EmailDetailsCard(
-   email: Email,
-   mailboxType: MailboxType,
-   modifier: Modifier = Modifier
+    email: Email,
+    mailboxType: MailboxType,
+    isFullScreen: Boolean,
+    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     val displayToast = { text: String ->
@@ -168,15 +173,19 @@ private fun EmailDetailsCard(
                 email,
                 Modifier.fillMaxWidth()
             )
-            Text(
-                text = stringResource(email.subject),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.outline,
-                modifier = Modifier.padding(
-                    top = dimensionResource(R.dimen.detail_content_padding_top),
-                    bottom = dimensionResource(R.dimen.detail_expanded_subject_body_spacing)
+            if (isFullScreen) {
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.detail_content_padding_top)))
+            } else {
+                Text(
+                    text = stringResource(email.subject),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.outline,
+                    modifier = Modifier.padding(
+                        top = dimensionResource(R.dimen.detail_content_padding_top),
+                        bottom = dimensionResource(R.dimen.detail_expanded_subject_body_spacing)
+                    )
                 )
-            )
+            }
             Text(
                 text = stringResource(email.body),
                 style = MaterialTheme.typography.bodyLarge,

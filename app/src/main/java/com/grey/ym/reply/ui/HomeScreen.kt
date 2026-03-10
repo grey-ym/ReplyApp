@@ -80,7 +80,9 @@ fun HomeScreen(
     )
 
     if (navigationType == ReplyNavigationType.PERMANENT_NAVIGATION_DRAWER) {
+        val navigationDrawerContentDescription = stringResource(R.string.navigation_drawer)
         PermanentNavigationDrawer(
+            modifier = Modifier.testTag(navigationDrawerContentDescription),
             drawerContent = {
                 PermanentDrawerSheet(
                     modifier = Modifier.width(dimensionResource(R.dimen.drawer_width))
@@ -120,8 +122,10 @@ fun HomeScreen(
                 modifier = modifier
             )
         } else {
+
             DetailsScreen(
                 replyUiState = replyUiState,
+                isFullScreen = true,
                 onBackPressed = onDetailScreenBackPressed,
                 modifier = modifier
             )
@@ -192,7 +196,7 @@ private fun ReplyAppContent(
                     currentTab = replyUiState.currentMailbox,
                     onTabPressed = onTabPressed,
                     navigationItemContentList = navigationItemContentList,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().testTag(bottomNavigationContentDescription)
                 )
             }
         }

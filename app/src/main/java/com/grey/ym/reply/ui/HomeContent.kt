@@ -1,6 +1,8 @@
 package com.grey.ym.reply.ui
 
 
+import android.annotation.SuppressLint
+import android.app.Activity
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -28,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -66,8 +69,10 @@ fun ListOnlyContent(
             )
         }
     }
+
 }
 
+@SuppressLint("ContextCastToActivity")
 @Composable
 fun ListAndDetailContent(
     replyUiState: ReplyUiState,
@@ -82,7 +87,9 @@ fun ListAndDetailContent(
     ) {
         LazyColumn(
             contentPadding = WindowInsets.statusBars.asPaddingValues(),
-            modifier = Modifier.weight(1f).padding(horizontal = dimensionResource(R.dimen.email_list_only_horizontal_padding)),
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = dimensionResource(R.dimen.email_list_only_horizontal_padding), end = dimensionResource(R.dimen.email_list_only_horizontal_padding), bottom = dimensionResource(R.dimen.email_list_item_vertical_spacing)),
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.email_list_item_vertical_spacing))
         ) {
             items(emails, key = { email -> email.id }) {email ->
@@ -93,13 +100,12 @@ fun ListAndDetailContent(
                 )
             }
         }
-//        val activity = LocalContext.current as Activity
+        val activity = LocalContext.current as Activity
         DetailsScreen(
-            modifier = Modifier
-                .padding(top = dimensionResource(R.dimen.email_list_item_vertical_spacing))
-                .weight(1f),
+            modifier = Modifier.weight(1f).padding(bottom = dimensionResource(R.dimen.email_list_item_vertical_spacing)),
             replyUiState = replyUiState,
-            onBackPressed = {}
+            onBackPressed = { activity.finish() }
+//            onBackPressed = {}
         )
     }
 }
@@ -233,7 +239,7 @@ private fun ListOnlyContentPreview() {
     ListOnlyContent(replyUiState, {})
 }
 
-@Preview(showBackground = true, widthDp = 1000)
+//@Preview(showBackground = true, widthDp = 1000)
 @Composable
 private fun ListAndDetailContentPreview() {
     val viewModel: ReplyViewModel = viewModel()
